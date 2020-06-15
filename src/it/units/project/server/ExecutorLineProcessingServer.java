@@ -11,15 +11,13 @@ public class ExecutorLineProcessingServer {
   private final int port;
   private final String quitCommand;
   private final Function<String, String> commandProcessingFunction;
-  private final ExecutorService processComputationRequests;
-  private final ExecutorService connectionHandler;
+  private final ExecutorService executorComputationRequest;
 
   public ExecutorLineProcessingServer(int port, String quitCommand, Function<String, String> commandProcessingFunction, int concurrentClients) {
     this.port = port;
     this.quitCommand = quitCommand;
     this.commandProcessingFunction = commandProcessingFunction;
-    processComputationRequests = Executors.newFixedThreadPool(concurrentClients);
-    connectionHandler = Executors.newCachedThreadPool();
+    executorComputationRequest = Executors.newFixedThreadPool(concurrentClients);
   }
 
   public void start() throws IOException {
@@ -27,7 +25,9 @@ public class ExecutorLineProcessingServer {
       while (true) {
         try {
           final Socket socket = serverSocket.accept();
-          connectionHandler.submit(() -> {
+
+          // create a new Thread that handle the connection
+          new Thread(() -> {
             try (socket) {
               BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
               BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -46,7 +46,7 @@ public class ExecutorLineProcessingServer {
                   bw.flush();
                 } else {
                   // computation request
-                  processComputationRequests.submit(() -> {
+                  executorComputationRequest.submit(() -> {
                     try {
                       bw.write(commandProcessingFunction.apply(command) + System.lineSeparator());
                       bw.flush();
@@ -55,18 +55,18 @@ public class ExecutorLineProcessingServer {
                     }
                   });
                 }
-
               }
             } catch (IOException e) {
               System.err.printf("IO error: %s", e);
             }
-          });
+          }).start(); // start the new Thread
+
         } catch (IOException e) {
           System.err.printf("Cannot accept connection due to %s", e);
         }
       }
     } finally {
-      processComputationRequests.shutdown();
+      executorComputationRequest.shutdown();
     }
   }
 
