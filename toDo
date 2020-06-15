@@ -1,0 +1,15 @@
+Gestion e di catch:
+- main
+- di processComputationRequests.submit // computation request
+
+
+
+Controlla import classi evitando *:
+- ExecutorLineProcessingServer
+
+
+SVILUPPO:
+rendi classe ExpressionCalculator senza costruttore?
+
+DOMANDA TEAM:
+Slide 658 perché usare un 
