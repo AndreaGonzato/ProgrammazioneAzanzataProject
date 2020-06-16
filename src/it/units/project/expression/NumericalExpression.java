@@ -1,10 +1,14 @@
 package it.units.project.expression;
 
-public class ExpressionCalculator {
+/*
+This link explain what is a numerical expression:
+https://mathtricks.zohosites.com/Numerical-Expression.html
+ */
+public class NumericalExpression {
 
   Node root;
 
-  public ExpressionCalculator(String stringToProcess) {
+  public NumericalExpression(String stringToProcess) {
     Parser parser = new Parser(stringToProcess);
     root = parser.parse();
   }
