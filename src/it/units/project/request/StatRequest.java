@@ -1,4 +1,4 @@
-package it.units.project;
+package it.units.project.request;
 
 public class StatRequest implements Request {
 

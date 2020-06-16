@@ -1,10 +1,10 @@
-package it.units.project;
+package it.units.project.request;
 
 import it.units.project.expression.NumericalExpression;
 
 import java.util.function.Function;
 
-public enum ComputationRequestType {
+public enum ComputationKind {
   MIN((expressions) -> {
     Double min;
     if (expressions.length > 0) {
@@ -52,7 +52,7 @@ public enum ComputationRequestType {
 
   private final Function<NumericalExpression[], Double> function;
 
-  ComputationRequestType(Function<NumericalExpression[], Double> function) {
+  ComputationKind(Function<NumericalExpression[], Double> function) {
     this.function = function;
   }
 

@@ -1,8 +1,8 @@
 package it.units.project.server;
 
-import it.units.project.ComputationRequest;
-import it.units.project.Request;
-import it.units.project.StatRequest;
+import it.units.project.request.ComputationRequest;
+import it.units.project.request.Request;
+import it.units.project.request.StatRequest;
 
 import java.io.*;
 import java.net.ServerSocket;
