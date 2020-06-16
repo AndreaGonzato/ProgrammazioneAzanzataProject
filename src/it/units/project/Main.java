@@ -13,9 +13,9 @@ public class Main {
     NumericalExpression ec = new NumericalExpression("(28-((4+1)^2))");
     System.out.println("result: " + ec.calculate());
 
-    Processor processor = new Processor();
+    Processor processor = new Processor(); // drop class
 
-    LineProcessingServer server = new LineProcessingServer(10000, "BYE", processor.getFunction(), 1);
+    LineProcessingServer server = new LineProcessingServer(10000, "BYE", 1);
     try {
       server.start();
     } catch (IOException e) {

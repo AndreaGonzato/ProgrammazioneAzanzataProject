@@ -9,18 +9,15 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Function;
 
 public class LineProcessingServer {
   private final int port;
   private final String quitCommand;
-  private final Function<String, String> commandProcessingFunction;
   private final ExecutorService executorComputationRequest;
 
-  public LineProcessingServer(int port, String quitCommand, Function<String, String> commandProcessingFunction, int concurrentClients) {
+  public LineProcessingServer(int port, String quitCommand, int concurrentClients) {
     this.port = port;
     this.quitCommand = quitCommand;
-    this.commandProcessingFunction = commandProcessingFunction;
     executorComputationRequest = Executors.newFixedThreadPool(concurrentClients);
   }
 
