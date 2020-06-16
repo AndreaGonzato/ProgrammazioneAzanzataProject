@@ -4,6 +4,9 @@ import it.units.project.expression.NumericalExpression;
 import it.units.project.server.LineProcessingServer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 
 public class Main {
 
