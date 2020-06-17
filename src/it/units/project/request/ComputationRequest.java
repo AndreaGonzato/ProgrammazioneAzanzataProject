@@ -1,7 +1,6 @@
 package it.units.project.request;
 
 
-import java.io.IOException;
 import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,14 +45,13 @@ public class ComputationRequest implements Request {
     // TEST
     System.out.println("computationKind: " + computationKind); // TEST
     System.out.println("valuesKind: " + valuesKind.toString()); // TEST
-    /*
+
     for (int i = 0; i < variablesList.size(); i++) {
       System.out.println(variablesList.get(i).name);
       System.out.println(variablesList.get(i).lower);
       System.out.println(variablesList.get(i).step);
       System.out.println(variablesList.get(i).upper);
     }
-     */
 
 
     return request.toUpperCase();
@@ -70,7 +68,7 @@ public class ComputationRequest implements Request {
       offset = matcher.end();
     } else {
       throw new ProtocolException(
-              "Computation Kind is not defined at the beginning of the request");
+              "Computation Kind is not properly defined at the beginning of the request");
     }
 
     switch (type) {
