@@ -1,7 +1,7 @@
 package it.units.project.request;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Variable {
 
@@ -9,7 +9,7 @@ public class Variable {
   public double lower;
   public double step;
   public double upper;
-  public List<Double> tuple;
+  public Set<Double> values;
 
 
   public Variable(String name, double lower, double step, double upper) {
@@ -20,12 +20,12 @@ public class Variable {
     this.lower = lower;
     this.step = step;
     this.upper = upper;
-    tuple = new ArrayList<>();
+    values = new HashSet<>();
 
     int k = 0;
     double currentStep = lower;
     while (currentStep <= upper) {
-      tuple.add(currentStep);
+      values.add(currentStep);
       // increase values
       k++;
       currentStep = lower + (k * step);

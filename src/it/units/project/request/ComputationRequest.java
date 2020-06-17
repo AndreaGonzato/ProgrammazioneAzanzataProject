@@ -20,6 +20,24 @@ public class ComputationRequest implements Request {
   }
 
   public String solve() throws ProtocolException {
+    parse(); // parse all the request
+
+    // TEST
+    System.out.println("computationKind: " + computationKind); // TEST
+    System.out.println("valuesKind: " + valuesKind.toString()); // TEST
+
+    for (int i = 0; i < variablesList.size(); i++) {
+      System.out.println(variablesList.get(i).name);
+      System.out.println(variablesList.get(i).lower);
+      System.out.println(variablesList.get(i).step);
+      System.out.println(variablesList.get(i).upper);
+    }
+
+
+    return request.toUpperCase();
+  }
+
+  private void parse() throws ProtocolException {
     int offset = parseComputationKind(); // assign field computationKind
     if (request.charAt(offset) == '_') {
       offset++;
@@ -41,20 +59,7 @@ public class ComputationRequest implements Request {
       throw new ProtocolException(String.format(
               "Semicolon is not present at index: %d in the request", offset));
     }
-
-    // TEST
-    System.out.println("computationKind: " + computationKind); // TEST
-    System.out.println("valuesKind: " + valuesKind.toString()); // TEST
-
-    for (int i = 0; i < variablesList.size(); i++) {
-      System.out.println(variablesList.get(i).name);
-      System.out.println(variablesList.get(i).lower);
-      System.out.println(variablesList.get(i).step);
-      System.out.println(variablesList.get(i).upper);
-    }
-
-
-    return request.toUpperCase();
+    //PARSE EXPRESSION
   }
 
   private int parseComputationKind() throws ProtocolException {
