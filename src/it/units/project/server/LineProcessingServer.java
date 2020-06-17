@@ -54,7 +54,7 @@ public class LineProcessingServer {
                       bw.write(request.solve() + System.lineSeparator());
                       bw.flush();
                     } catch (IOException e) {
-                      System.err.printf("IO error: %s", e);
+                      System.err.printf("IO error: %s%n", e);
                     }
                   });
                 }

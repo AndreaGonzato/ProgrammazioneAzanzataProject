@@ -1,5 +1,7 @@
 package it.units.project.request;
 
+import java.net.ProtocolException;
+
 public class StatRequest implements Request {
 
   private String request;
@@ -9,7 +11,7 @@ public class StatRequest implements Request {
   }
 
   @Override
-  public String solve() {
+  public String solve() throws ProtocolException {
     return request.toUpperCase();
   }
 }

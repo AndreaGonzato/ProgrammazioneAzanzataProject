@@ -5,16 +5,17 @@ import java.util.regex.Pattern;
 
 public class Variable {
 
-  String name;
-  double lower;
-  double step;
-  double upper;
+  private String name;
+  private double lower;
+  private double step;
+  private double upper;
 
 
-  public Variable(String variableDefinition){
-    // x0:-1:0.1:1
-    System.out.println("TEST: "+variableDefinition);
-
+  public Variable(String name, double lower, double step, double upper) {
+    this.name = name;
+    this.lower = lower;
+    this.step = step;
+    this.upper = upper;
   }
 
 

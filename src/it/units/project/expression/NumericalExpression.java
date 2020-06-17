@@ -17,7 +17,7 @@ public class NumericalExpression {
     return calculateRecursively(root);
   }
 
-  private double calculateRecursively(Node node) throws IllegalArgumentException{
+  private double calculateRecursively(Node node) {
     if (node instanceof Operator) {
       double[] array = new double[2];
       array[0] = calculateRecursively(node.getChildren().get(0));

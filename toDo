@@ -9,10 +9,12 @@ Controlla import classi evitando *:
 
 
 SVILUPPO:
-rendi classe ExpressionCalculator senza costruttore?
+completa il parsing: mancano le espressioni
+
+finito il parsing controlla che computationKind,valuesKind, variablesList... non siano null. Questo avviene se come input fornisco tipo: MAX_GRID
+
+RIDESIGN
+rendi classe NumericalCalculator senza costruttore?
 
 DOMANDA TEAM:
-Slide 649 
 
-
-Slide 658 perché usare un 

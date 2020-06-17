@@ -2,6 +2,7 @@ package it.units.project.request;
 
 
 import java.io.IOException;
+import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -13,61 +14,63 @@ public class ComputationRequest implements Request {
   private ValuesKind valuesKind;
   private List<Variable> variablesList;
 
-  private static String generalDescriptionForException = "Computation Request is not in a proper format,";
-
+  private static final String GENERAL_DESCRIPTION_FOR_EXCEPTION = "Computation Request is not in a proper format,";
 
   public ComputationRequest(String request) {
     this.request = request;
   }
 
-  public String solve() throws IOException {
+  public String solve() throws ProtocolException {
     int offset = parseComputationKind(); // assign field computationKind
-    if (request.charAt(offset) == '_'){
+    if (request.charAt(offset) == '_') {
       offset++;
-    }else {
-      throw new IOException(String.format(
-              "%s char '_' is not present at index: %d in request: %s%n",
-              generalDescriptionForException, offset, request));
+    } else {
+      throw new ProtocolException(String.format(
+              "Char '_' is not present at index: %d in the request", offset));
     }
     offset = parseValuesKind(offset); // assign field valuesKind
-    if(request.charAt(offset) == ';' ){
+    if (request.charAt(offset) == ';') {
       offset++;
-    }else {
-      throw new IOException(String.format(
-              "%s char ';' is not present at index: %d in request: %s%n",
-              generalDescriptionForException, offset, request));
+    } else {
+      throw new ProtocolException(String.format(
+              "Semicolon is not present at index: %d in the request", offset));
     }
     offset = parseVariables(offset); // fill variablesList
     if (request.charAt(offset) == ';') {
       offset++;
     } else {
-      throw new IOException(String.format(
-              "%s char ';' is not present at index: %d in request: %s%n",
-              generalDescriptionForException, offset, request));
+      throw new ProtocolException(String.format(
+              "Semicolon is not present at index: %d in the request", offset));
     }
 
-
-    System.out.println("type: " + computationKind); // TEST
+    // TEST
+    System.out.println("computationKind: " + computationKind); // TEST
     System.out.println("valuesKind: " + valuesKind.toString()); // TEST
+    /*
+    for (int i = 0; i < variablesList.size(); i++) {
+      System.out.println(variablesList.get(i).name);
+      System.out.println(variablesList.get(i).lower);
+      System.out.println(variablesList.get(i).step);
+      System.out.println(variablesList.get(i).upper);
+    }
+     */
+
+
     return request.toUpperCase();
   }
 
-  private int parseComputationKind() throws IOException {
+  private int parseComputationKind() throws ProtocolException {
+    int offset = 0;
     String regex = "(MAX)|(MIN)|(AVG)|(COUNT)";
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(request);
-    int offset = 0;
-    String type = "";
-    if (matcher.find()) {
-      if (matcher.start() == 0) {
-        type = matcher.group();
-        offset = matcher.end();
-      }
-    }
-    if (offset == 0) {
-      throw new IOException(String.format(
-              "%s Computation Kind is not defined at the beginning of the request: %s%n",
-              generalDescriptionForException, request));
+    String type = null;
+    if (matcher.find() && matcher.start() == 0) {
+      type = matcher.group();
+      offset = matcher.end();
+    } else {
+      throw new ProtocolException(
+              "Computation Kind is not defined at the beginning of the request");
     }
 
     switch (type) {
@@ -88,21 +91,17 @@ public class ComputationRequest implements Request {
     return offset;
   }
 
-  private int parseValuesKind(int offset) throws IOException {
-    int originalOffset = offset;
+  private int parseValuesKind(int offset) throws ProtocolException {
     String regex = "(GRID)|(LIST)";
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(request);
-    String type = "";
-    if (matcher.find()) {
-      if (matcher.start() == offset) {
-        type = matcher.group();
-        offset = matcher.end();
-      }
-    }
-    if (offset == originalOffset) {
-      throw new IOException(String.format(
-              "%s Values Kind are not defined in request: %s%n", generalDescriptionForException, request));
+    String type = null;
+    if (matcher.find() && matcher.start() == offset) {
+      type = matcher.group();
+      offset = matcher.end();
+    } else {
+      throw new ProtocolException(
+              "Values Kind are not properly defined in the request");
     }
 
     switch (type) {
@@ -117,27 +116,31 @@ public class ComputationRequest implements Request {
     return offset;
   }
 
-  private int parseVariables(int offset) throws IOException {
+  private int parseVariables(int offset) throws ProtocolException {
     variablesList = new ArrayList<Variable>();
-    int originalOffset = offset;
-    String regex = "[a-z][a-z0-9]*:[0-9]+(\\.[0-9]+)?:[0-9]+(\\.[0-9]+)?:[0-9]+(\\.[0-9]+)?";
+    String regex = "([a-z][a-z0-9]*):((-[0-9]+)|([0-9]+)(\\.[0-9]+)?):([0-9]+(\\.[0-9]+)?):((-[0-9]+)|([0-9]+)(\\.[0-9]+)?)";
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(request);
-    String variableDefinition = null;
-    while (matcher.find()) {
-      if (matcher.start() == offset) {
-        variableDefinition = matcher.group();
-        variablesList.add(new Variable(variableDefinition));
-        offset = matcher.end();
-        if (request.charAt(offset) == ',') {
-          offset++;
-        }
+    String variableName = null;
+    double low, step, upper;
+    boolean defineVariable = true; // indicate whether a variable need to be defined
+
+    while (defineVariable && matcher.find() && matcher.start() == offset) {
+      variableName = matcher.group(1);
+      low = Double.parseDouble(matcher.group(2));
+      step = Double.parseDouble(matcher.group(6));
+      upper = Double.parseDouble(matcher.group(8));
+      variablesList.add(new Variable(variableName, low, step, upper));
+      offset = matcher.end();
+      defineVariable = false;
+      if (request.charAt(offset) == ',') {
+        offset++;
+        defineVariable = true;
       }
     }
-    if (originalOffset == offset){
-      throw new IOException(String.format(
-              "%s a variable definition need to be specified in request: %s%n",
-              generalDescriptionForException, request));
+    if (defineVariable) {
+      throw new ProtocolException(
+              "Variable are not properly defined in the request");
     }
     return offset;
   }
