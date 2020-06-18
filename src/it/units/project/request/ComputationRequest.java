@@ -1,9 +1,10 @@
 package it.units.project.request;
 
 
+import com.google.common.collect.Sets;
+
 import java.net.ProtocolException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,7 +12,9 @@ public class ComputationRequest implements Request {
   private final String request;
   private ComputationKind computationKind;
   private ValuesKind valuesKind;
-  private List<Variable> variablesList;
+  private List<Variable> variables;
+  private Set<List<Double>> tuples;
+
 
   private static final String GENERAL_DESCRIPTION_FOR_EXCEPTION = "Computation Request is not in a proper format,";
 
@@ -22,18 +25,52 @@ public class ComputationRequest implements Request {
   public String solve() throws ProtocolException {
     parse(); // parse all the request
 
-    // TEST
-    System.out.println("computationKind: " + computationKind); // TEST
-    System.out.println("valuesKind: " + valuesKind.toString()); // TEST
+    // remove all the variables that have cardinality of values == 0
+    variables.removeIf(variable -> variable.getValues().size() == 0 );
 
-    for (int i = 0; i < variablesList.size(); i++) {
-      System.out.println(variablesList.get(i).name);
-      System.out.println(variablesList.get(i).lower);
-      System.out.println(variablesList.get(i).step);
-      System.out.println(variablesList.get(i).upper);
+
+    if (valuesKind.equals(ValuesKind.GRID)) {
+      // GRID
+      // create a List that contains the values Sets of all the variables
+      List<Set<Double>> variablesValues = new ArrayList<>();
+      for (int i = 0; i < variables.size(); i++) {
+        variablesValues.add(variables.get(i).getValues());
+      }
+      // use of library Guava
+      tuples = Sets.cartesianProduct(variablesValues);
+
+    } else {
+      // LIST
+      // checks that the cardinality of values of the variables is consistent
+      int cardinalityOfValuesOfVariables = 0;
+      for (int i = 0; i < variables.size(); i++) {
+        if (cardinalityOfValuesOfVariables == 0) {
+          cardinalityOfValuesOfVariables = variables.get(i).getValues().size();
+        }
+        if (cardinalityOfValuesOfVariables != 0 && variables.get(i).getValues().size() != cardinalityOfValuesOfVariables) {
+          throw new ProtocolException("The cardinality of values of the variables must be the same");
+        }
+      }
+
+      tuples = new HashSet<List<Double>>();
+
+
+
+
+
+/*
+      for (int i=0 ; i<cardinalityOfValuesOfVariables ; i++){
+        List<Double> valuesOfVariables = new ArrayList<>();
+        for (Variable v: variables) {
+          valuesOfVariables.add(v.getValues().g)
+        }
+      }
+*/
+
+
     }
 
-
+    System.out.println(request.toUpperCase()); // TEST
     return request.toUpperCase();
   }
 
@@ -120,7 +157,7 @@ public class ComputationRequest implements Request {
   }
 
   private int parseVariables(int offset) throws ProtocolException {
-    variablesList = new ArrayList<Variable>();
+    variables = new ArrayList<Variable>();
     String regex = "([a-z][a-z0-9]*):((-[0-9]+)|([0-9]+)(\\.[0-9]+)?):([0-9]+(\\.[0-9]+)?):((-[0-9]+)|([0-9]+)(\\.[0-9]+)?)";
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(request);
@@ -133,7 +170,7 @@ public class ComputationRequest implements Request {
       low = Double.parseDouble(matcher.group(2));
       step = Double.parseDouble(matcher.group(6));
       upper = Double.parseDouble(matcher.group(8));
-      variablesList.add(new Variable(variableName, low, step, upper));
+      variables.add(new Variable(variableName, low, step, upper));
       offset = matcher.end();
       defineVariable = false;
       if (request.charAt(offset) == ',') {

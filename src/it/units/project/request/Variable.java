@@ -1,27 +1,28 @@
 package it.units.project.request;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class Variable {
 
-  public String name;
-  public double lower;
-  public double step;
-  public double upper;
-  public Set<Double> values;
+  private String name;
+  private double lower;
+  private double step;
+  private double upper;
+  private Set<Double> values;
 
 
   public Variable(String name, double lower, double step, double upper) {
-    if (step < 0) {
+    if (step <= 0) {
       throw new IllegalArgumentException("A step of a variable definition need to be positive");
     }
     this.name = name;
     this.lower = lower;
     this.step = step;
     this.upper = upper;
-    values = new HashSet<>();
-
+    int initialCapacity = Math.max(0, (int)((upper-lower)/step)+1);
+    values = new LinkedHashSet<>(initialCapacity);
     int k = 0;
     double currentStep = lower;
     while (currentStep <= upper) {
@@ -34,5 +35,7 @@ public class Variable {
     // this happens when: this.lower > this.upper
   }
 
-
+  public Set<Double> getValues() {
+    return values;
+  }
 }
