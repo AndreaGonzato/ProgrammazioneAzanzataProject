@@ -17,7 +17,7 @@ public class Main {
   public static void main(String[] args) {
 
     //TEST
-    ComputationRequest computationRequest = new ComputationRequest("MAX_LIST;x1:1:1:3,x2:2:2:6;hggg");
+    ComputationRequest computationRequest = new ComputationRequest("MAX_GRID;x1:1:1:3,x2:2:2:6;hggg");
     try {
       computationRequest.solve();
     } catch (ProtocolException e) {

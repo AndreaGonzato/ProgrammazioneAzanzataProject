@@ -1,16 +1,12 @@
 package it.units.project.request;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 public class Variable {
 
   private String name;
   private double lower;
   private double step;
   private double upper;
-  private Set<Double> values;
+  private double[] values;
 
 
   public Variable(String name, double lower, double step, double upper) {
@@ -21,21 +17,22 @@ public class Variable {
     this.lower = lower;
     this.step = step;
     this.upper = upper;
-    int initialCapacity = Math.max(0, (int)((upper-lower)/step)+1);
-    values = new LinkedHashSet<>(initialCapacity);
+    int length = Math.max(0, (int)((upper-lower)/step)+1);
+    values = new double[length];
+
     int k = 0;
     double currentStep = lower;
     while (currentStep <= upper) {
-      values.add(currentStep);
+      values[k] = currentStep;
       // increase values
       k++;
       currentStep = lower + (k * step);
     }
-    // observation: do not exclude the possibility that tuple.size() == 0
+    // observation: do not exclude the possibility that values.length == 0
     // this happens when: this.lower > this.upper
   }
 
-  public Set<Double> getValues() {
+  public double[] getValues() {
     return values;
   }
 }

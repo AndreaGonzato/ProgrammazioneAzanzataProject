@@ -2,6 +2,7 @@ package it.units.project.request;
 
 
 import com.google.common.collect.Sets;
+import com.google.common.primitives.Doubles;
 
 import java.net.ProtocolException;
 import java.util.*;
@@ -12,7 +13,7 @@ public class ComputationRequest implements Request {
   private final String request;
   private ComputationKind computationKind;
   private ValuesKind valuesKind;
-  private List<Variable> variables;
+  private Map<String, Variable> variables;
   private Set<List<Double>> tuples;
 
 
@@ -25,53 +26,53 @@ public class ComputationRequest implements Request {
   public String solve() throws ProtocolException {
     parse(); // parse all the request
 
-    // remove all the variables that have cardinality of values == 0
-    variables.removeIf(variable -> variable.getValues().size() == 0 );
-
 
     if (valuesKind.equals(ValuesKind.GRID)) {
       // GRID
       // create a List that contains the values Sets of all the variables
       List<Set<Double>> variablesValues = new ArrayList<>();
-      for (int i = 0; i < variables.size(); i++) {
-        variablesValues.add(variables.get(i).getValues());
+      for (Variable variable : variables.values()) {
+        List<Double> list = Doubles.asList(variable.getValues()); // Guava method
+        variablesValues.add(new HashSet<>(list));
       }
-      // use of library Guava
+
+      // Guava method
       tuples = Sets.cartesianProduct(variablesValues);
+
+      //TEST
+      System.out.println("TEST tuple GRID:");
+      for (List<Double> test: tuples ) {
+        System.out.println(test);
+      }
 
     } else {
       // LIST
+
       // checks that the cardinality of values of the variables is consistent
       int cardinalityOfValuesOfVariables = 0;
-      for (int i = 0; i < variables.size(); i++) {
+      for (Variable variable : variables.values()) {
         if (cardinalityOfValuesOfVariables == 0) {
-          cardinalityOfValuesOfVariables = variables.get(i).getValues().size();
+          cardinalityOfValuesOfVariables = variable.getValues().length;
         }
-        if (cardinalityOfValuesOfVariables != 0 && variables.get(i).getValues().size() != cardinalityOfValuesOfVariables) {
+        if (cardinalityOfValuesOfVariables != 0 && variable.getValues().length != cardinalityOfValuesOfVariables) {
           throw new ProtocolException("The cardinality of values of the variables must be the same");
         }
       }
 
-      tuples = new HashSet<List<Double>>();
-
-
-
-
-
-/*
-      for (int i=0 ; i<cardinalityOfValuesOfVariables ; i++){
-        List<Double> valuesOfVariables = new ArrayList<>();
-        for (Variable v: variables) {
-          valuesOfVariables.add(v.getValues().g)
-        }
+      //TEST
+      System.out.println("TEST: array delle variabili");
+      for (Variable var : variables.values()) {
+        System.out.println(Arrays.toString(var.getValues()));
       }
-*/
 
 
     }
 
+
+
     System.out.println(request.toUpperCase()); // TEST
     return request.toUpperCase();
+
   }
 
   private void parse() throws ProtocolException {
@@ -157,7 +158,7 @@ public class ComputationRequest implements Request {
   }
 
   private int parseVariables(int offset) throws ProtocolException {
-    variables = new ArrayList<Variable>();
+    variables = new LinkedHashMap<>();
     String regex = "([a-z][a-z0-9]*):((-[0-9]+)|([0-9]+)(\\.[0-9]+)?):([0-9]+(\\.[0-9]+)?):((-[0-9]+)|([0-9]+)(\\.[0-9]+)?)";
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(request);
@@ -170,7 +171,9 @@ public class ComputationRequest implements Request {
       low = Double.parseDouble(matcher.group(2));
       step = Double.parseDouble(matcher.group(6));
       upper = Double.parseDouble(matcher.group(8));
-      variables.add(new Variable(variableName, low, step, upper));
+      if (low <= upper) {
+        variables.put(variableName, new Variable(variableName, low, step, upper));
+      }
       offset = matcher.end();
       defineVariable = false;
       if (request.charAt(offset) == ',') {
