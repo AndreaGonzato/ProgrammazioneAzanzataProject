@@ -6,7 +6,7 @@ https://mathtricks.zohosites.com/Numerical-Expression.html
  */
 public class NumericalExpression {
 
-  public Node root;
+  private Node root;
 
   public NumericalExpression(String stringToProcess) {
     Parser parser = new Parser(stringToProcess);

@@ -32,13 +32,13 @@ public class Expression {
 
   public double evaluate() {
 
-    NumericalExpression[] numericalExpressions = new NumericalExpression[tuples.size()];
+    NumericalExpression[] numericalExpressions = new NumericalExpression[Math.max(1, tuples.size())];
 
     Iterator<List<Double>> iterator = tuples.iterator();
     for (int i = 0; i < tuples.size(); i++) {
       String expression = definition;
       List<Double> values = iterator.next();
-      int j =0;
+      int j = 0;
       // replace all the reference to variables with it current value in the iterator
       for (Variable variale : variables) {
         expression = expression.replaceAll(variale.getName(), Double.toString(values.get(j)));
@@ -46,10 +46,14 @@ public class Expression {
       }
       numericalExpressions[i] = new NumericalExpression(expression);
     }
-    System.out.println("TEST: "+computationKind);
-    double result = computationKind.getFunction().apply(numericalExpressions);
-    System.out.println("RESULT: " + result);
 
-    return result;
+    if (tuples.size() == 0) {
+      numericalExpressions[0] = new NumericalExpression(definition);
+      if (computationKind.equals(ComputationKind.COUNT)){
+        return 0;
+      }
+    }
+    return computationKind.getFunction().apply(numericalExpressions);
+
   }
 }

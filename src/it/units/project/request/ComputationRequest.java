@@ -29,8 +29,9 @@ public class ComputationRequest implements Request {
   public String solve() throws ProtocolException {
     parse(); // parse request and assigns fields: computationKind, valuesKind, variables tuples and expressions
 
+
     double firstResultExpression = expressions.get(0).evaluate();
-    System.out.println("firstResultExpression: " + firstResultExpression);
+    System.out.println("RESULT: " + firstResultExpression+ " (of the only first expression)");
 
     System.out.println(request.toUpperCase()); // TEST
     return request.toUpperCase();
@@ -39,6 +40,11 @@ public class ComputationRequest implements Request {
   private Set<List<Double>> getTuples() throws ProtocolException {
     if (valuesKind.equals(ValuesKind.GRID)) {
       // GRID
+
+      if (variables.size() == 0){
+        return new HashSet<>(); // empty Set
+      }
+
       /*
       create a List that contains the values Sets of all the variables:
       for example if:
@@ -66,7 +72,7 @@ public class ComputationRequest implements Request {
           variablesValuesCardinality = variable.getValues().length;
         }
         if (variablesValuesCardinality != 0 && variable.getValues().length != variablesValuesCardinality) {
-          throw new ProtocolException("The cardinality of values of the variables must be the same");
+          throw new ProtocolException("The cardinality of values of the variables it is not the same for each variable");
         }
       }
 
