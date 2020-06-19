@@ -3,6 +3,8 @@ package it.units.project.request;
 
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Doubles;
+import it.units.project.expression.Expression;
+import it.units.project.expression.Variable;
 
 import java.net.ProtocolException;
 import java.util.*;
@@ -25,16 +27,8 @@ public class ComputationRequest implements Request {
   }
 
   public String solve() throws ProtocolException {
-    parse(); // parse request and assigns fields: computationKind, valuesKind, variables and expressions
+    parse(); // parse request and assigns fields: computationKind, valuesKind, variables tuples and expressions
 
-    tuples = getTuples(); // assigns tuples
-
-
-    //TEST
-    System.out.println("Tuples: ");
-    for (List<Double> test : tuples) {
-      System.out.println(test);
-    }
 
 
     System.out.println(request.toUpperCase()); // TEST
@@ -118,13 +112,12 @@ public class ComputationRequest implements Request {
               "Semicolon is not present at index: %d in the request", offset));
     }
     offset = parseVariables(offset); // fill variables Set
-    if (request.charAt(offset) == ';') {
-      offset++;
-    } else {
-      throw new ProtocolException(String.format(
-              "Semicolon is not present at index: %d in the request", offset));
-    }
+    tuples = getTuples(); // assigns tuples
     offset = parseExpressions(offset); // fill expression List
+
+    if (offset+1 < request.length() ){
+      throw new ProtocolException("Delete chars from index "+ offset+" to obtain a syntactic valid request");
+    }
 
   }
 
@@ -216,9 +209,27 @@ public class ComputationRequest implements Request {
     return offset;
   }
 
-  private int parseExpressions(int offset){
-    System.out.println("scrivi codice parseExpressions");
-    return 0;
+  private int parseExpressions(int offset) throws ProtocolException {
+    expressions = new ArrayList<>();
+    String regex = ";[a-zA-Z0-9\\.\\+\\-\\*\\/\\^\\(\\)]+";
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(request);
+    matcher.find(); // discard the first match
+    while (matcher.find() && matcher.start() == offset) {
+      expressions.add(new Expression(matcher.group().substring(1), variables, tuples));
+      offset = matcher.end();
+    }
+
+    if (expressions.size() == 0) {
+      if (request.charAt(offset) == ';') {
+        offset++;
+      } else {
+        throw new ProtocolException(String.format(
+                "Semicolon is not present at index: %d in the request", offset));
+      }
+    }
+
+    return offset;
   }
 
 }

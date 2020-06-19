@@ -1,35 +1,32 @@
 package it.units.project;
 
-import com.google.common.collect.Sets;
-import it.units.project.expression.NumericalExpression;
+import it.units.project.expression.*;
 import it.units.project.request.ComputationRequest;
-import it.units.project.request.Variable;
 import it.units.project.server.LineProcessingServer;
 
 import java.io.IOException;
 import java.net.ProtocolException;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main {
 
   public static void main(String[] args) {
 
-
-
     //TEST
-    ComputationRequest computationRequest = new ComputationRequest("MAX_GRID;x1:1:1:3,x2:4:1:6,x2:7:1:8;hggg");
+    ComputationRequest computationRequest = new ComputationRequest("MAX_GRID;x:1:1:3,y:2:2:6;(x+2)");
     try {
       computationRequest.solve();
     } catch (ProtocolException e) {
-      e.printStackTrace();
+      System.err.printf("IO error: %s%n", e);
     }
 
-    // TEST
-    NumericalExpression ec = new NumericalExpression("(28-((4+1)^2))");
-    System.out.println("result: " + ec.calculate());
+
+
+
+    System.out.println("superato test e sto continuando nel Main()");
 
 
     LineProcessingServer server = new LineProcessingServer(10000, "BYE", 1);
