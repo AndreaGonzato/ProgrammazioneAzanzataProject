@@ -1,5 +1,9 @@
 package it.units.project.request;
 
+import com.google.common.base.Strings;
+
+import java.util.Objects;
+
 public class Variable {
 
   private String name;
@@ -17,7 +21,7 @@ public class Variable {
     this.lower = lower;
     this.step = step;
     this.upper = upper;
-    int length = Math.max(0, (int)((upper-lower)/step)+1);
+    int length = Math.max(0, (int) ((upper - lower) / step) + 1);
     values = new double[length];
 
     int k = 0;
@@ -34,5 +38,19 @@ public class Variable {
 
   public double[] getValues() {
     return values;
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Variable variable = (Variable) o;
+    return name.equals(variable.name);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name);
   }
 }

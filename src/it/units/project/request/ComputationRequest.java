@@ -13,7 +13,7 @@ public class ComputationRequest implements Request {
   private final String request;
   private ComputationKind computationKind;
   private ValuesKind valuesKind;
-  private Map<String, Variable> variables;
+  private Set<Variable> variables;
   private Set<List<Double>> tuples;
 
 
@@ -29,19 +29,25 @@ public class ComputationRequest implements Request {
 
     if (valuesKind.equals(ValuesKind.GRID)) {
       // GRID
-      // create a List that contains the values Sets of all the variables
+      /*
+      create a List that contains the values Sets of all the variables:
+      for example if variables.size == 2 && variables.get(0).getValues() == [1, 2] &&  variables.get(1).getValues() == [3, 4]
+      then variablesValues will be: [[1, 2], [3, 4]]
+       */
       List<Set<Double>> variablesValues = new ArrayList<>();
-      for (Variable variable : variables.values()) {
-        List<Double> list = Doubles.asList(variable.getValues()); // Guava method
-        variablesValues.add(new HashSet<>(list));
+      for (Variable variable : variables) {
+        // Guava method to convert a double[] in a List<Double>
+        List<Double> variableValues = Doubles.asList(variable.getValues());
+        // convert a List<Double> in a HashSet<Double> and store this Set as element of a List: variablesValues
+        variablesValues.add(new HashSet<>(variableValues));
       }
 
-      // Guava method
+      // Guava method that return the cartesian product
       tuples = Sets.cartesianProduct(variablesValues);
 
       //TEST
       System.out.println("TEST tuple GRID:");
-      for (List<Double> test: tuples ) {
+      for (List<Double> test : tuples) {
         System.out.println(test);
       }
 
@@ -50,7 +56,7 @@ public class ComputationRequest implements Request {
 
       // checks that the cardinality of values of the variables is consistent
       int cardinalityOfValuesOfVariables = 0;
-      for (Variable variable : variables.values()) {
+      for (Variable variable : variables) {
         if (cardinalityOfValuesOfVariables == 0) {
           cardinalityOfValuesOfVariables = variable.getValues().length;
         }
@@ -61,18 +67,39 @@ public class ComputationRequest implements Request {
 
       //TEST
       System.out.println("TEST: array delle variabili");
-      for (Variable var : variables.values()) {
+      for (Variable var : variables) {
         System.out.println(Arrays.toString(var.getValues()));
       }
+
+            /*
+      create a List that contains the values Sets of all the variables:
+      for example if variables.size == 2 && variables.get(0).getValues() == [1, 2, 3] &&  variables.get(1).getValues() == [4, 5, 6]
+      then variablesValues will be: [[1, 2, 3], [4, 5, 6]]
+       */
+
+      List<Variable> temp = new ArrayList<>(variables);
+      double[][] variablesValues = new double[cardinalityOfValuesOfVariables][variables.size()];
+      for (int i = 0; i < cardinalityOfValuesOfVariables; i++) {
+        double[] array = new double[variables.size()];
+        for (int j = 0; j < variables.size(); j++) {
+          array[j] = temp.get(j).getValues()[i];
+        }
+        variablesValues[i] = array;
+      }
+
+      //TEST
+      System.out.println("TEST: array dei valori di LIST: ");
+      for (double[] var : variablesValues) {
+        System.out.println(Arrays.toString(var));
+      }
+
 
 
     }
 
 
-
     System.out.println(request.toUpperCase()); // TEST
     return request.toUpperCase();
-
   }
 
   private void parse() throws ProtocolException {
@@ -158,7 +185,7 @@ public class ComputationRequest implements Request {
   }
 
   private int parseVariables(int offset) throws ProtocolException {
-    variables = new LinkedHashMap<>();
+    variables = new LinkedHashSet<>();
     String regex = "([a-z][a-z0-9]*):((-[0-9]+)|([0-9]+)(\\.[0-9]+)?):([0-9]+(\\.[0-9]+)?):((-[0-9]+)|([0-9]+)(\\.[0-9]+)?)";
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(request);
@@ -172,7 +199,7 @@ public class ComputationRequest implements Request {
       step = Double.parseDouble(matcher.group(6));
       upper = Double.parseDouble(matcher.group(8));
       if (low <= upper) {
-        variables.put(variableName, new Variable(variableName, low, step, upper));
+        variables.add(new Variable(variableName, low, step, upper));
       }
       offset = matcher.end();
       defineVariable = false;

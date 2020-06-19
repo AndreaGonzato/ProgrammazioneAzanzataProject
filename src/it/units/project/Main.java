@@ -9,6 +9,7 @@ import it.units.project.server.LineProcessingServer;
 import java.io.IOException;
 import java.net.ProtocolException;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -16,8 +17,10 @@ public class Main {
 
   public static void main(String[] args) {
 
+
+
     //TEST
-    ComputationRequest computationRequest = new ComputationRequest("MAX_GRID;x1:1:1:3,x2:2:2:6;hggg");
+    ComputationRequest computationRequest = new ComputationRequest("MAX_GRID;x1:1:1:3,x2:4:1:6;hggg");
     try {
       computationRequest.solve();
     } catch (ProtocolException e) {
