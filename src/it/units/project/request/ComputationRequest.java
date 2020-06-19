@@ -14,6 +14,7 @@ public class ComputationRequest implements Request {
   private ComputationKind computationKind;
   private ValuesKind valuesKind;
   private Set<Variable> variables;
+  private List<Expression> expressions;
   private Set<List<Double>> tuples;
 
 
@@ -24,15 +25,31 @@ public class ComputationRequest implements Request {
   }
 
   public String solve() throws ProtocolException {
-    parse(); // parse all the request
+    parse(); // parse request and assigns fields: computationKind, valuesKind, variables and expressions
+
+    tuples = getTuples(); // assigns tuples
 
 
+    //TEST
+    System.out.println("Tuples: ");
+    for (List<Double> test : tuples) {
+      System.out.println(test);
+    }
+
+
+    System.out.println(request.toUpperCase()); // TEST
+    return request.toUpperCase();
+  }
+
+  private Set<List<Double>> getTuples() throws ProtocolException {
     if (valuesKind.equals(ValuesKind.GRID)) {
       // GRID
       /*
       create a List that contains the values Sets of all the variables:
-      for example if variables.size == 2 && variables.get(0).getValues() == [1, 2] &&  variables.get(1).getValues() == [3, 4]
-      then variablesValues will be: [[1, 2], [3, 4]]
+      for example if:
+        variable1.getValues() == [1, 2] && variable2.getValues() == [3, 4]
+        (variables.add(variable1) ; variables.add(variable2);) && variables.size() == 2;
+      then: variablesValues will be: [[1, 2], [3, 4]]
        */
       List<Set<Double>> variablesValues = new ArrayList<>();
       for (Variable variable : variables) {
@@ -43,63 +60,46 @@ public class ComputationRequest implements Request {
       }
 
       // Guava method that return the cartesian product
-      tuples = Sets.cartesianProduct(variablesValues);
-
-      //TEST
-      System.out.println("TEST tuple GRID:");
-      for (List<Double> test : tuples) {
-        System.out.println(test);
-      }
+      return Sets.cartesianProduct(variablesValues);
 
     } else {
       // LIST
-
       // checks that the cardinality of values of the variables is consistent
-      int cardinalityOfValuesOfVariables = 0;
+      int variablesValuesCardinality = 0;
       for (Variable variable : variables) {
-        if (cardinalityOfValuesOfVariables == 0) {
-          cardinalityOfValuesOfVariables = variable.getValues().length;
+        if (variablesValuesCardinality == 0) {
+          variablesValuesCardinality = variable.getValues().length;
         }
-        if (cardinalityOfValuesOfVariables != 0 && variable.getValues().length != cardinalityOfValuesOfVariables) {
+        if (variablesValuesCardinality != 0 && variable.getValues().length != variablesValuesCardinality) {
           throw new ProtocolException("The cardinality of values of the variables must be the same");
         }
       }
 
-      //TEST
-      System.out.println("TEST: array delle variabili");
-      for (Variable var : variables) {
-        System.out.println(Arrays.toString(var.getValues()));
-      }
-
-            /*
-      create a List that contains the values Sets of all the variables:
-      for example if variables.size == 2 && variables.get(0).getValues() == [1, 2, 3] &&  variables.get(1).getValues() == [4, 5, 6]
+      /*
+      create a List that contains the values List of all the variables:
+      for example if:
+        variable1.getValues() == [1, 2, 3] && variable2.getValues() == [4, 5, 6]
+        (variables.add(variable1) ; variables.add(variable2);) && variables.size() == 2;
       then variablesValues will be: [[1, 2, 3], [4, 5, 6]]
        */
+      List<List<Double>> variablesValues = new ArrayList<>();
+      for (Variable variable : variables) {
+        // Guava method to convert a double[] in a List<Double>
+        List<Double> variableValues = Doubles.asList(variable.getValues());
+        variablesValues.add(variableValues);
+      }
 
-      List<Variable> temp = new ArrayList<>(variables);
-      double[][] variablesValues = new double[cardinalityOfValuesOfVariables][variables.size()];
-      for (int i = 0; i < cardinalityOfValuesOfVariables; i++) {
-        double[] array = new double[variables.size()];
+      Set<List<Double>> result = new LinkedHashSet<>();
+
+      for (int i = 0; i < variablesValuesCardinality; i++) {
+        List<Double> list = new ArrayList<>();
         for (int j = 0; j < variables.size(); j++) {
-          array[j] = temp.get(j).getValues()[i];
+          list.add(variablesValues.get(j).get(i));
         }
-        variablesValues[i] = array;
+        result.add(list);
       }
-
-      //TEST
-      System.out.println("TEST: array dei valori di LIST: ");
-      for (double[] var : variablesValues) {
-        System.out.println(Arrays.toString(var));
-      }
-
-
-
+      return result;
     }
-
-
-    System.out.println(request.toUpperCase()); // TEST
-    return request.toUpperCase();
   }
 
   private void parse() throws ProtocolException {
@@ -117,14 +117,15 @@ public class ComputationRequest implements Request {
       throw new ProtocolException(String.format(
               "Semicolon is not present at index: %d in the request", offset));
     }
-    offset = parseVariables(offset); // fill variablesList
+    offset = parseVariables(offset); // fill variables Set
     if (request.charAt(offset) == ';') {
       offset++;
     } else {
       throw new ProtocolException(String.format(
               "Semicolon is not present at index: %d in the request", offset));
     }
-    //PARSE EXPRESSION
+    offset = parseExpressions(offset); // fill expression List
+
   }
 
   private int parseComputationKind() throws ProtocolException {
@@ -213,6 +214,11 @@ public class ComputationRequest implements Request {
               "Variable are not properly defined in the request");
     }
     return offset;
+  }
+
+  private int parseExpressions(int offset){
+    System.out.println("scrivi codice parseExpressions");
+    return 0;
   }
 
 }

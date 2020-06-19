@@ -20,7 +20,7 @@ public class Main {
 
 
     //TEST
-    ComputationRequest computationRequest = new ComputationRequest("MAX_GRID;x1:1:1:3,x2:4:1:6;hggg");
+    ComputationRequest computationRequest = new ComputationRequest("MAX_GRID;x1:1:1:3,x2:4:1:6,x2:7:1:8;hggg");
     try {
       computationRequest.solve();
     } catch (ProtocolException e) {
