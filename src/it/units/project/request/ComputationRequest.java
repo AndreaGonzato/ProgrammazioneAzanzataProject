@@ -29,7 +29,8 @@ public class ComputationRequest implements Request {
   public String solve() throws ProtocolException {
     parse(); // parse request and assigns fields: computationKind, valuesKind, variables tuples and expressions
 
-
+    double firstResultExpression = expressions.get(0).evaluate();
+    System.out.println("firstResultExpression: " + firstResultExpression);
 
     System.out.println(request.toUpperCase()); // TEST
     return request.toUpperCase();
@@ -98,14 +99,14 @@ public class ComputationRequest implements Request {
 
   private void parse() throws ProtocolException {
     int offset = parseComputationKind(); // assign field computationKind
-    if (request.charAt(offset) == '_') {
+    if (offset < request.length() && request.charAt(offset) == '_') {
       offset++;
     } else {
       throw new ProtocolException(String.format(
               "Char '_' is not present at index: %d in the request", offset));
     }
     offset = parseValuesKind(offset); // assign field valuesKind
-    if (request.charAt(offset) == ';') {
+    if (offset < request.length() && request.charAt(offset) == ';') {
       offset++;
     } else {
       throw new ProtocolException(String.format(
@@ -115,8 +116,8 @@ public class ComputationRequest implements Request {
     tuples = getTuples(); // assigns tuples
     offset = parseExpressions(offset); // fill expression List
 
-    if (offset+1 < request.length() ){
-      throw new ProtocolException("Delete chars from index "+ offset+" to obtain a syntactic valid request");
+    if (offset + 1 < request.length()) {
+      throw new ProtocolException("Delete chars from index " + offset + " to obtain a syntactic valid request");
     }
 
   }
@@ -183,21 +184,19 @@ public class ComputationRequest implements Request {
     String regex = "([a-z][a-z0-9]*):((-[0-9]+)|([0-9]+)(\\.[0-9]+)?):([0-9]+(\\.[0-9]+)?):((-[0-9]+)|([0-9]+)(\\.[0-9]+)?)";
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(request);
-    String variableName = null;
-    double low, step, upper;
     boolean defineVariable = true; // indicate whether a variable need to be defined
 
     while (defineVariable && matcher.find() && matcher.start() == offset) {
-      variableName = matcher.group(1);
-      low = Double.parseDouble(matcher.group(2));
-      step = Double.parseDouble(matcher.group(6));
-      upper = Double.parseDouble(matcher.group(8));
+      String variableName = matcher.group(1);
+      double low = Double.parseDouble(matcher.group(2));
+      double step = Double.parseDouble(matcher.group(6));
+      double upper = Double.parseDouble(matcher.group(8));
       if (low <= upper) {
         variables.add(new Variable(variableName, low, step, upper));
       }
       offset = matcher.end();
       defineVariable = false;
-      if (request.charAt(offset) == ',') {
+      if (offset < request.length() && request.charAt(offset) == ',') {
         offset++;
         defineVariable = true;
       }
@@ -216,17 +215,12 @@ public class ComputationRequest implements Request {
     Matcher matcher = pattern.matcher(request);
     matcher.find(); // discard the first match
     while (matcher.find() && matcher.start() == offset) {
-      expressions.add(new Expression(matcher.group().substring(1), variables, tuples));
+      expressions.add(new Expression(matcher.group().substring(1), variables, tuples, computationKind));
       offset = matcher.end();
     }
 
     if (expressions.size() == 0) {
-      if (request.charAt(offset) == ';') {
-        offset++;
-      } else {
-        throw new ProtocolException(String.format(
-                "Semicolon is not present at index: %d in the request", offset));
-      }
+      throw new ProtocolException("Expressions are not properly defined in the request");
     }
 
     return offset;
