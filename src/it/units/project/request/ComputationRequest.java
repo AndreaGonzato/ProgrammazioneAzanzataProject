@@ -3,7 +3,7 @@ package it.units.project.request;
 
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Doubles;
-import com.google.protobuf.ServiceException;
+import it.units.project.exception.ServiceException;
 import it.units.project.expression.Expression;
 import it.units.project.expression.Variable;
 

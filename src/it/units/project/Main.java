@@ -1,7 +1,7 @@
 package it.units.project;
 
-import com.google.protobuf.ServiceException;
-import com.sun.jdi.request.InvalidRequestStateException;
+
+import it.units.project.exception.ServiceException;
 import it.units.project.request.ComputationRequest;
 import it.units.project.server.LineProcessingServer;
 
@@ -14,7 +14,7 @@ public class Main {
   public static void main(String[] args) {
 
     //TEST
-    ComputationRequest computationRequest = new ComputationRequest("MAX_LIST;x:1:1:9;(x+2)");
+    ComputationRequest computationRequest = new ComputationRequest("MIN_GRID;x:-1:0.1:1,y:-10:1:20;(1+4)");
     try {
       computationRequest.solve();
     }catch (ParseException e){
@@ -23,8 +23,6 @@ public class Main {
     catch (ProtocolException | ServiceException e) {
       System.err.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
     }
-
-
 
 
     System.out.println("SUPERATO TEST e sto continuando nel Main()");

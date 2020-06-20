@@ -1,6 +1,6 @@
 package it.units.project.server;
 
-import com.google.protobuf.ServiceException;
+import it.units.project.exception.ServiceException;
 import it.units.project.request.ComputationRequest;
 import it.units.project.request.Request;
 import it.units.project.request.StatRequest;

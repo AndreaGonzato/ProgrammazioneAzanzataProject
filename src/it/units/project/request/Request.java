@@ -1,8 +1,8 @@
 package it.units.project.request;
 
-import com.google.protobuf.ServiceException;
 
-import java.io.IOException;
+import it.units.project.exception.ServiceException;
+
 import java.net.ProtocolException;
 import java.text.ParseException;
 

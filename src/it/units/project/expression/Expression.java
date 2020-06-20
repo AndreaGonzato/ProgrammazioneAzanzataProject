@@ -1,6 +1,6 @@
 package it.units.project.expression;
 
-import com.google.protobuf.ServiceException;
+import it.units.project.exception.ServiceException;
 import it.units.project.request.ComputationKind;
 
 
@@ -36,6 +36,7 @@ public class Expression {
 
   public double evaluate() {
 
+
     NumericalExpression[] numericalExpressions = new NumericalExpression[Math.max(1, tuples.size())];
 
     Iterator<List<Double>> iterator = tuples.iterator();
@@ -64,12 +65,12 @@ public class Expression {
 
   boolean allVariablesAreDefined() {
     String string = definition;
-    String[] stringsToRemove = {"[0-9]+(\\.[0-9]+)?", "\\+", "-", "\\*", "/", "^", "\\(", "\\)"};
-    for (int i = 0; i < stringsToRemove.length; i++) {
-      string = string.replaceAll(stringsToRemove[i], "");
-    }
     for (Variable variable : variables) {
       string = string.replaceAll(variable.getName(), "");
+    }
+    String[] stringsToRemove = {"[0-9]+(\\.[0-9]+)?", "\\+", "-", "\\*", "/", "\\^", "\\(", "\\)"};
+    for (int i = 0; i < stringsToRemove.length; i++) {
+      string = string.replaceAll(stringsToRemove[i], "");
     }
     if (string.length() == 0){
       return true;
