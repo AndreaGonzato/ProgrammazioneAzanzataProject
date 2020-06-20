@@ -1,12 +1,15 @@
 package it.units.project.server;
 
+import com.google.protobuf.ServiceException;
 import it.units.project.request.ComputationRequest;
 import it.units.project.request.Request;
 import it.units.project.request.StatRequest;
 
 import java.io.*;
+import java.net.ProtocolException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.ParseException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -44,7 +47,13 @@ public class LineProcessingServer {
                 if (command.length() >= 5 && command.substring(0, 5).equals("STAT_")) {
                   // stat request
                   Request request = new StatRequest(command);
-                  bw.write(request.solve() + System.lineSeparator());
+                  try {
+                    bw.write(request.solve() + System.lineSeparator());
+                  } catch (ParseException e) {
+                    System.err.printf("ParseException: %s at index: %d%n", e.getMessage(), e.getErrorOffset());
+                  } catch (ProtocolException | ServiceException e) {
+                    System.err.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
+                  }
                   bw.flush();
                 } else {
                   // computation request
@@ -53,14 +62,16 @@ public class LineProcessingServer {
                       Request request = new ComputationRequest(command);
                       bw.write(request.solve() + System.lineSeparator());
                       bw.flush();
-                    } catch (IOException e) {
-                      System.err.printf("IO error: %s%n", e);
+                    } catch (ParseException e) {
+                      System.err.printf("ParseException: %s at index: %d%n", e.getMessage(), e.getErrorOffset());
+                    } catch (IOException | ServiceException e) {
+                      System.err.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
                     }
                   });
                 }
               }
             } catch (IOException e) {
-              System.err.printf("IO error: %s", e);
+              System.err.printf("IOException: %s", e);
             }
           }).start(); // start the new Thread
 

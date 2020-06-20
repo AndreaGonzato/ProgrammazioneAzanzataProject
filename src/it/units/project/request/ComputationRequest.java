@@ -3,10 +3,12 @@ package it.units.project.request;
 
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Doubles;
+import com.google.protobuf.ServiceException;
 import it.units.project.expression.Expression;
 import it.units.project.expression.Variable;
 
 import java.net.ProtocolException;
+import java.text.ParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,12 +28,12 @@ public class ComputationRequest implements Request {
     this.request = request;
   }
 
-  public String solve() throws ProtocolException {
+  public String solve() throws ProtocolException, ParseException, ServiceException {
     parse(); // parse request and assigns fields: computationKind, valuesKind, variables tuples and expressions
 
 
     double firstResultExpression = expressions.get(0).evaluate();
-    System.out.println("RESULT: " + firstResultExpression+ " (of the only first expression)");
+    System.out.println("RESULT: " + firstResultExpression + " (of the only first expression)");
 
     System.out.println(request.toUpperCase()); // TEST
     return request.toUpperCase();
@@ -41,7 +43,7 @@ public class ComputationRequest implements Request {
     if (valuesKind.equals(ValuesKind.GRID)) {
       // GRID
 
-      if (variables.size() == 0){
+      if (variables.size() == 0) {
         return new HashSet<>(); // empty Set
       }
 
@@ -103,27 +105,30 @@ public class ComputationRequest implements Request {
     }
   }
 
-  private void parse() throws ProtocolException {
+  private void parse() throws ProtocolException, ParseException, ServiceException {
     int offset = parseComputationKind(); // assign field computationKind
     if (offset < request.length() && request.charAt(offset) == '_') {
       offset++;
     } else {
-      throw new ProtocolException(String.format(
-              "Char '_' is not present at index: %d in the request", offset));
+      throw new ParseException("Char '_' is not present", offset);
     }
     offset = parseValuesKind(offset); // assign field valuesKind
     if (offset < request.length() && request.charAt(offset) == ';') {
       offset++;
     } else {
-      throw new ProtocolException(String.format(
-              "Semicolon is not present at index: %d in the request", offset));
+      throw new ParseException("Semicolon is not present", offset);
     }
     offset = parseVariables(offset); // fill variables Set
     tuples = getTuples(); // assigns tuples
+    if (offset < request.length() && request.charAt(offset) == ';') {
+      offset++;
+    } else {
+      throw new ParseException("Semicolon is not present", offset);
+    }
     offset = parseExpressions(offset); // fill expression List
 
-    if (offset + 1 < request.length()) {
-      throw new ProtocolException("Delete chars from index " + offset + " to obtain a syntactic valid request");
+    if (offset != request.length()) {
+      throw new ProtocolException("Delete chars from index: " + offset + " to obtain a syntactic valid request");
     }
 
   }
@@ -214,18 +219,22 @@ public class ComputationRequest implements Request {
     return offset;
   }
 
-  private int parseExpressions(int offset) throws ProtocolException {
+  private int parseExpressions(int offset) throws ProtocolException, ServiceException {
     expressions = new ArrayList<>();
-    String regex = ";[a-zA-Z0-9\\.\\+\\-\\*\\/\\^\\(\\)]+";
+    String regex = "([a-z][a-z0-9]*)|([0-9]+(\\.[0-9]+)?)|(\\([a-zA-Z0-9\\.\\+\\-\\*\\/\\^\\(\\)]+\\))";
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(request);
-    matcher.find(); // discard the first match
-    while (matcher.find() && matcher.start() == offset) {
-      expressions.add(new Expression(matcher.group().substring(1), variables, tuples, computationKind));
+    boolean defineExpression = true; // indicate whether a expression need to be define
+    while (matcher.find(offset) && matcher.start() == offset) {
+      expressions.add(new Expression(matcher.group(), variables, tuples, computationKind));
       offset = matcher.end();
+      defineExpression = false;
+      if (offset < request.length() && request.charAt(offset) == ';') {
+        offset++;
+        defineExpression = true;
+      }
     }
-
-    if (expressions.size() == 0) {
+    if (defineExpression | expressions.size() == 0) {
       throw new ProtocolException("Expressions are not properly defined in the request");
     }
 

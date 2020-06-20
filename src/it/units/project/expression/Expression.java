@@ -1,6 +1,8 @@
 package it.units.project.expression;
 
+import com.google.protobuf.ServiceException;
 import it.units.project.request.ComputationKind;
+
 
 import java.net.ProtocolException;
 import java.util.Iterator;
@@ -15,17 +17,19 @@ public class Expression {
 
   private Node root;
 
-  public Expression(String definition, Set<Variable> variables, Set<List<Double>> tuples, ComputationKind computationKind) throws ProtocolException {
+  public Expression(String definition, Set<Variable> variables, Set<List<Double>> tuples, ComputationKind computationKind) throws ProtocolException, ServiceException {
     this.definition = definition;
     this.variables = variables;
     this.tuples = tuples;
     this.computationKind = computationKind;
     Parser parser = new Parser(definition);
-
     try {
       root = parser.parse();
     } catch (IllegalArgumentException e) {
       throw new ProtocolException("This expression: '" + definition + "' does not respect the protocol");
+    }
+    if (!allVariablesAreDefined()){
+      throw new ServiceException("This expression: '" + definition + "' does not have all the variables correctly defined");
     }
 
   }
@@ -49,11 +53,28 @@ public class Expression {
 
     if (tuples.size() == 0) {
       numericalExpressions[0] = new NumericalExpression(definition);
-      if (computationKind.equals(ComputationKind.COUNT)){
+      if (computationKind.equals(ComputationKind.COUNT)) {
         return 0;
       }
     }
     return computationKind.getFunction().apply(numericalExpressions);
 
+  }
+
+
+  boolean allVariablesAreDefined() {
+    String string = definition;
+    String[] stringsToRemove = {"[0-9]+(\\.[0-9]+)?", "\\+", "-", "\\*", "/", "^", "\\(", "\\)"};
+    for (int i = 0; i < stringsToRemove.length; i++) {
+      string = string.replaceAll(stringsToRemove[i], "");
+    }
+    for (Variable variable : variables) {
+      string = string.replaceAll(variable.getName(), "");
+    }
+    if (string.length() == 0){
+      return true;
+    }else {
+      return false;
+    }
   }
 }
