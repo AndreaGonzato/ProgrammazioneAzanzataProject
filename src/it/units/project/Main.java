@@ -16,7 +16,7 @@ public class Main {
   public static void main(String[] args) {
 
     //TEST
-    ComputationRequest computationRequest = new ComputationRequest("MAX_LIST;x:1:1:3;(0-999.99945672365635253769991)");
+    ComputationRequest computationRequest = new ComputationRequest("MAX_LIST;x:0:1:4;((0-1)^0.25)");
     String result = computationRequest.solve();
     System.out.println(result);
     System.out.println("SUPERATO TEST e sto continuando nel Main()");

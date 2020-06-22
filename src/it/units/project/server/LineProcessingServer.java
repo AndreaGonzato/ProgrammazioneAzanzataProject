@@ -13,12 +13,12 @@ import java.util.concurrent.Executors;
 public class LineProcessingServer {
   private final int port;
   private final String quitCommand;
-  private final ExecutorService executorComputationRequest;
+  private final ExecutorService executorService;
 
   public LineProcessingServer(int port, String quitCommand, int concurrentClients) {
     this.port = port;
     this.quitCommand = quitCommand;
-    executorComputationRequest = Executors.newFixedThreadPool(concurrentClients);
+    executorService = Executors.newFixedThreadPool(concurrentClients);
   }
 
   public void start() throws IOException {
@@ -48,7 +48,7 @@ public class LineProcessingServer {
                   bw.flush();
                 } else {
                   // computation request
-                  executorComputationRequest.submit(() -> {
+                  executorService.submit(() -> {
                     try {
                       Request request = new ComputationRequest(command);
                       bw.write( request.solve() + System.lineSeparator());
@@ -69,7 +69,7 @@ public class LineProcessingServer {
         }
       }
     } finally {
-      executorComputationRequest.shutdown();
+      executorService.shutdown();
     }
   }
 
