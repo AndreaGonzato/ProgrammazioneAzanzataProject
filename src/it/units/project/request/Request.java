@@ -7,5 +7,5 @@ import java.net.ProtocolException;
 import java.text.ParseException;
 
 public interface Request {
-  String solve() throws ProtocolException, ParseException, ServiceException;
+  String solve();
 }

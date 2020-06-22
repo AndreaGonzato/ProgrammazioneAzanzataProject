@@ -17,7 +17,8 @@ public class Parser {
   }
 
   public enum TokenType {
-    CONSTANT("[0-9]+(\\.[0-9]+)?"),
+    POSITIVE_CONSTANT("[0-9]+(\\.[0-9]+)?"),
+    NEGATIVE_CONSTANT("\\-[0-9]+(\\.[0-9]+)?"),
     VARIABLE("[a-z][a-z0-9]*"),
     OPERATOR("[+\\-\\*/\\^]"),
     OPEN_BRACKET("\\("),
@@ -51,12 +52,19 @@ public class Parser {
     }
   }
 
-  public Node parse() throws IllegalArgumentException {
+  public Node parse(boolean enableNegativeConstantsParsing) throws IllegalArgumentException {
     Token token;
-    token = TokenType.CONSTANT.next(string, cursor);
+    token = TokenType.POSITIVE_CONSTANT.next(string, cursor);
     if (token != null && token.start == cursor) {
       cursor = token.end;
       return new Constant(Double.parseDouble(string.substring(token.start, token.end)));
+    }
+    if (enableNegativeConstantsParsing){
+      token = TokenType.NEGATIVE_CONSTANT.next(string, cursor);
+      if (token != null && token.start == cursor) {
+        cursor = token.end;
+        return new Constant(Double.parseDouble(string.substring(token.start, token.end)));
+      }
     }
     token = TokenType.VARIABLE.next(string, cursor);
     if (token != null && token.start == cursor) {
@@ -66,7 +74,7 @@ public class Parser {
     token = TokenType.OPEN_BRACKET.next(string, cursor);
     if (token != null && token.start == cursor) {
       cursor = token.end;
-      Node child1 = parse();
+      Node child1 = parse(enableNegativeConstantsParsing);
       Token operatorToken = TokenType.OPERATOR.next(string, cursor);
       if (operatorToken !=null && operatorToken.start==cursor) {
         cursor = operatorToken.end;
@@ -77,7 +85,7 @@ public class Parser {
             string.charAt(cursor)
         ));
       }
-      Node child2 = parse();
+      Node child2 = parse(enableNegativeConstantsParsing);
       Token closedBracketToken = TokenType.CLOSED_BRACKET.next(string, cursor);
       if (closedBracketToken !=null && closedBracketToken.start==cursor) {
         cursor = closedBracketToken.end;

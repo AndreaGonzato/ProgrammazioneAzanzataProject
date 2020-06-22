@@ -5,34 +5,34 @@ import it.units.project.exception.ServiceException;
 import it.units.project.request.ComputationRequest;
 import it.units.project.server.LineProcessingServer;
 
+
 import java.io.IOException;
 import java.net.ProtocolException;
 import java.text.ParseException;
+
 
 public class Main {
 
   public static void main(String[] args) {
 
     //TEST
-    ComputationRequest computationRequest = new ComputationRequest("MIN_GRID;x:-1:0.1:1,y:-10:1:20;(1+4)");
-    try {
-      computationRequest.solve();
-    }catch (ParseException e){
-      System.err.printf("ParseException: %s at index: %d%n", e.getMessage(), e.getErrorOffset());
-    }
-    catch (ProtocolException | ServiceException e) {
-      System.err.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
-    }
-
-
+    ComputationRequest computationRequest = new ComputationRequest("MAX_LIST;x:1:1:3;(0-999.99945672365635253769991)");
+    String result = computationRequest.solve();
+    System.out.println(result);
     System.out.println("SUPERATO TEST e sto continuando nel Main()");
 
 
-    LineProcessingServer server = new LineProcessingServer(10000, "BYE", 1);
+    int port = 10000;
+    if (args.length > 0){
+      port = Integer.parseInt(args[0]);
+    }
+    int processors = Runtime.getRuntime().availableProcessors();
+
+    LineProcessingServer server = new LineProcessingServer(port, "BYE", processors);
     try {
       server.start();
     } catch (IOException e) {
-      e.printStackTrace(); // TO DO
+      System.err.printf("IOException: %s", e);
     }
   }
 }

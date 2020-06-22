@@ -11,10 +11,12 @@ public class Variable extends Node {
   private double upper;
   private double[] values;
 
+
   public Variable(String name) {
     super(Collections.emptyList());
     this.name = name;
   }
+
 
   public Variable(String name, double lower, double step, double upper) {
     super(Collections.emptyList());
@@ -25,11 +27,24 @@ public class Variable extends Node {
     this.lower = lower;
     this.step = step;
     this.upper = upper;
-    int length = Math.max(0, (int) ((upper - lower) / step) + 1);
-    values = new double[length];
 
+    // set the array length
     int k = 0;
     double currentStep = lower;
+    while (currentStep <= upper) {
+      k++;
+      currentStep = lower + (k * step);
+    }
+    values = new double[k];
+
+    /*
+     Observation: next comment line is not fully equivalent to the last section code,
+     because in some cases could happen that length < k due to java approximation
+    */
+    // int length = Math.max(0, (int) ((upper - lower) / step)+1);
+
+    k = 0;
+    currentStep = lower;
     while (currentStep <= upper) {
       values[k] = currentStep;
       // increase values

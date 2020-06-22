@@ -11,11 +11,10 @@ import java.util.Set;
 
 public class Expression {
   private final String definition;
-  private Set<Variable> variables;
-  private Set<List<Double>> tuples;
-  private ComputationKind computationKind;
+  private final Set<Variable> variables;
+  private final Set<List<Double>> tuples;
+  private final ComputationKind computationKind;
 
-  private Node root;
 
   public Expression(String definition, Set<Variable> variables, Set<List<Double>> tuples, ComputationKind computationKind) throws ProtocolException, ServiceException {
     this.definition = definition;
@@ -24,18 +23,17 @@ public class Expression {
     this.computationKind = computationKind;
     Parser parser = new Parser(definition);
     try {
-      root = parser.parse();
+      parser.parse(false);
     } catch (IllegalArgumentException e) {
       throw new ProtocolException("This expression: '" + definition + "' does not respect the protocol");
     }
-    if (!allVariablesAreDefined()){
+    if (!allVariablesAreDefined() && !computationKind.equals(ComputationKind.COUNT)){
       throw new ServiceException("This expression: '" + definition + "' does not have all the variables correctly defined");
     }
 
   }
 
   public double evaluate() {
-
 
     NumericalExpression[] numericalExpressions = new NumericalExpression[Math.max(1, tuples.size())];
 
@@ -69,13 +67,9 @@ public class Expression {
       string = string.replaceAll(variable.getName(), "");
     }
     String[] stringsToRemove = {"[0-9]+(\\.[0-9]+)?", "\\+", "-", "\\*", "/", "\\^", "\\(", "\\)"};
-    for (int i = 0; i < stringsToRemove.length; i++) {
-      string = string.replaceAll(stringsToRemove[i], "");
+    for (String s : stringsToRemove) {
+      string = string.replaceAll(s, "");
     }
-    if (string.length() == 0){
-      return true;
-    }else {
-      return false;
-    }
+    return string.length() == 0;
   }
 }

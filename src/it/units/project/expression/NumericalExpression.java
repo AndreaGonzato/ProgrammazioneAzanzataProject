@@ -6,11 +6,11 @@ https://mathtricks.zohosites.com/Numerical-Expression.html
  */
 public class NumericalExpression {
 
-  private Node root;
+  private final Node root;
 
   public NumericalExpression(String stringToProcess) {
     Parser parser = new Parser(stringToProcess);
-    root = parser.parse();
+    root = parser.parse(true);
   }
 
   public double calculate() {
