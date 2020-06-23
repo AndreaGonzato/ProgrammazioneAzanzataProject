@@ -4,50 +4,51 @@ import it.units.project.expression.NumericalExpression;
 
 import java.util.function.Function;
 
+
 public enum ComputationKind {
-  MIN((expressions) -> {
+  MIN((numericalExpressions) -> {
     Double min;
-    if (expressions.length > 0) {
-      min = expressions[0].calculate();
+    if (numericalExpressions.length > 0) {
+      min = numericalExpressions[0].calculate();
     } else {
       return null;
     }
-    for (int i = 1; i < expressions.length; i++) {
-      if (expressions[i].calculate() < min) {
-        min = expressions[i].calculate();
+    for (int i = 1; i < numericalExpressions.length; i++) {
+      if (numericalExpressions[i].calculate() < min) {
+        min = numericalExpressions[i].calculate();
       }
     }
     return min;
   }),
 
-  MAX((expressions) -> {
+  MAX((numericalExpressions) -> {
     Double max;
-    if (expressions.length > 0){
-      max = expressions[0].calculate();
+    if (numericalExpressions.length > 0){
+      max = numericalExpressions[0].calculate();
     }else {
       return null;
     }
-    for(int i=1 ; i<expressions.length ; i++){
-      if(expressions[i].calculate() > max){
-        max = expressions[i].calculate();
+    for(int i=1 ; i<numericalExpressions.length ; i++){
+      if(numericalExpressions[i].calculate() > max){
+        max = numericalExpressions[i].calculate();
       }
     }
     return max;
   }),
 
-  AVG((expressions) -> {
-    if (expressions.length < 1){
+  AVG((numericalExpressions) -> {
+    if (numericalExpressions.length < 1){
       return null;
     }
     double sum = 0;
-    for (NumericalExpression numericalExpression : expressions ) {
+    for (NumericalExpression numericalExpression : numericalExpressions ) {
       sum += numericalExpression.calculate();
     }
-    return sum/expressions.length;
+    return sum/numericalExpressions.length;
   }),
 
-  COUNT((expressions ) ->{
-    return Double.valueOf(expressions.length);
+  COUNT((numericalExpressions ) ->{
+    return Double.valueOf(numericalExpressions.length);
   });
 
   private final Function<NumericalExpression[], Double> function;

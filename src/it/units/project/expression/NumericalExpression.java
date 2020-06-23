@@ -1,12 +1,13 @@
 package it.units.project.expression;
 
 /*
-This link explain what is a numerical expression:
+This link explain and define what is a numerical expression:
 https://mathtricks.zohosites.com/Numerical-Expression.html
+This class models and calculate numerical expression
  */
 public class NumericalExpression {
 
-  private final Node root;
+  private final Node root; // binary tree representing the expression
 
   public NumericalExpression(String stringToProcess) {
     Parser parser = new Parser(stringToProcess);

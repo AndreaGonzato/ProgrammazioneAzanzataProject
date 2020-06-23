@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 public class ServerData {
 
   private static List<Double> responseTimes = Collections.synchronizedList(new ArrayList<>());
@@ -17,6 +18,9 @@ public class ServerData {
   }
 
   public static synchronized double getMaximumResponseTime() {
+    if (responseTimes.size() == 0){
+      return Double.NaN;
+    }
     double maximumResponseTime = 0;
     for (Double responseTime : responseTimes) {
       if (responseTime > maximumResponseTime) {

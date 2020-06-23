@@ -3,7 +3,6 @@ package it.units.project.request;
 import it.units.project.response.Response;
 import it.units.project.server.ServerData;
 
-import java.net.ProtocolException;
 
 public class StatRequest implements Request {
 

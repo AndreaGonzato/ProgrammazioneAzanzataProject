@@ -3,7 +3,6 @@ package it.units.project.expression;
 import it.units.project.exception.ServiceException;
 import it.units.project.request.ComputationKind;
 
-
 import java.net.ProtocolException;
 import java.util.Iterator;
 import java.util.List;
@@ -27,7 +26,7 @@ public class Expression {
     } catch (IllegalArgumentException e) {
       throw new ProtocolException("This expression: '" + definition + "' does not respect the protocol");
     }
-    if (!allVariablesAreDefined() && !computationKind.equals(ComputationKind.COUNT)){
+    if (!allVariablesAreDefined() && !computationKind.equals(ComputationKind.COUNT)) {
       throw new ServiceException("This expression: '" + definition + "' does not have all the variables correctly defined");
     }
 
@@ -72,4 +71,5 @@ public class Expression {
     }
     return string.length() == 0;
   }
+
 }

@@ -4,22 +4,29 @@ import it.units.project.request.ComputationRequest;
 import it.units.project.request.Request;
 import it.units.project.request.StatRequest;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 
 public class LineProcessingServer {
   private final int port;
   private final String quitCommand;
   private final ExecutorService executorService;
 
+
   public LineProcessingServer(int port, String quitCommand, int concurrentClients) {
     this.port = port;
     this.quitCommand = quitCommand;
     executorService = Executors.newFixedThreadPool(concurrentClients);
   }
+
 
   public void start() throws IOException {
     try (ServerSocket serverSocket = new ServerSocket(port)) {
@@ -32,6 +39,7 @@ public class LineProcessingServer {
             try (socket) {
               BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
               BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+              System.out.println("Established a new connection with: "+ socket.getInetAddress().getHostAddress());
               while (true) {
                 String command = br.readLine();
                 if (command == null) {
@@ -39,6 +47,7 @@ public class LineProcessingServer {
                   break;
                 }
                 if (command.equals(quitCommand)) {
+                  System.out.println("closing connection with: " + socket.getInetAddress().getHostAddress());
                   break;
                 }
                 if (command.length() >= 5 && command.substring(0, 5).equals("STAT_")) {
@@ -51,10 +60,10 @@ public class LineProcessingServer {
                   executorService.submit(() -> {
                     try {
                       Request request = new ComputationRequest(command);
-                      bw.write( request.solve() + System.lineSeparator());
+                      bw.write(request.solve() + System.lineSeparator());
                       bw.flush();
-                    }catch (IOException e) {
-                      System.err.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
+                    } catch (IOException e) {
+                      System.err.printf("IOException: %s%n", e.getMessage());
                     }
                   });
                 }
