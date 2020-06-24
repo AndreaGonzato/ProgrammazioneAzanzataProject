@@ -160,7 +160,7 @@ public class ComputationRequest implements Request {
 
   private int parseVariables(int offset) throws ProtocolException {
     variables = new LinkedHashSet<>();
-    String regex = "([a-z][a-z0-9]*):((-[0-9]+)|([0-9]+)(\\.[0-9]+)?):((Infinity)|([0-9]+(\\.[0-9]+)?)):((-[0-9]+)|([0-9]+)(\\.[0-9]+)?)";
+    String regex = "([a-z][a-z0-9]*):((-[0-9]+)|([0-9]+)(\\.[0-9]+)?):([0-9]+(\\.[0-9]+)?):((-[0-9]+)|([0-9]+)(\\.[0-9]+)?)";
     Pattern pattern = Pattern.compile(regex);
     Matcher matcher = pattern.matcher(request);
     boolean defineVariable = true; // indicate whether a variable need to be defined
@@ -169,7 +169,7 @@ public class ComputationRequest implements Request {
       String variableName = matcher.group(1);
       double low = Double.parseDouble(matcher.group(2));
       double step = Double.parseDouble(matcher.group(6));
-      double upper = Double.parseDouble(matcher.group(10));
+      double upper = Double.parseDouble(matcher.group(8));
       if (low <= upper) {
         variables.add(new Variable(variableName, low, step, upper));
       }

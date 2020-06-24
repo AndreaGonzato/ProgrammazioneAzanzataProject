@@ -1,7 +1,6 @@
 package it.units.project;
 
 import it.units.project.request.ComputationRequest;
-import it.units.project.request.StatRequest;
 import it.units.project.server.LineProcessingServer;
 
 import java.io.IOException;
@@ -13,7 +12,7 @@ public class Main {
   public static void main(String[] args) {
 
     //TEST
-    ComputationRequest computationRequest = new ComputationRequest("COUNT_GRID;x:6:Infinity:3;x");
+    ComputationRequest computationRequest = new ComputationRequest("MIN_LIST;x:-100:0.01:100;(x*x)");
     String result = computationRequest.solve();
     System.out.println(result);
     System.out.println("SUPERATO TEST e sto continuando nel Main()");
