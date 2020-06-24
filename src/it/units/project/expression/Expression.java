@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+
 public class Expression {
   private final String definition;
   private final Set<Variable> variables;
@@ -29,13 +30,11 @@ public class Expression {
     if (!allVariablesAreDefined() && !computationKind.equals(ComputationKind.COUNT)) {
       throw new ServiceException("This expression: '" + definition + "' does not have all the variables correctly defined");
     }
-
   }
 
+
   public double evaluate() {
-
     NumericalExpression[] numericalExpressions = new NumericalExpression[Math.max(1, tuples.size())];
-
     Iterator<List<Double>> iterator = tuples.iterator();
     for (int i = 0; i < tuples.size(); i++) {
       String expression = definition;
@@ -55,12 +54,12 @@ public class Expression {
         return 0;
       }
     }
-    return computationKind.getFunction().apply(numericalExpressions);
 
+    return computationKind.getFunction().apply(numericalExpressions);
   }
 
 
-  boolean allVariablesAreDefined() {
+  private boolean allVariablesAreDefined() {
     String string = definition;
     for (Variable variable : variables) {
       string = string.replaceAll(variable.getName(), "");

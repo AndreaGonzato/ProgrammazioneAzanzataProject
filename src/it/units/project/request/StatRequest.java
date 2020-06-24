@@ -5,18 +5,17 @@ import it.units.project.server.ServerData;
 
 
 public class StatRequest implements Request {
-
   private String request;
 
   public StatRequest(String request) {
     this.request = request;
   }
 
-  @Override
+
   public String solve() {
     final long startTime = System.currentTimeMillis();
     double result = 0;
-    switch (request){
+    switch (request) {
       case "STAT_REQS":
         result = ServerData.getResponsesNumber();
         break;
@@ -33,4 +32,5 @@ public class StatRequest implements Request {
     ServerData.addResponseTime(processTime);
     return Response.generateOkResponse(processTime, result);
   }
+
 }

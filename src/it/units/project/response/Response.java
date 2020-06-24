@@ -3,9 +3,9 @@ package it.units.project.response;
 import java.util.Locale;
 
 public class Response {
-
   private static final double MAX_NUMBER_NOT_EXPONENTIAL = 999999.999999;
   private static final double MIN_NUMBER_NOT_EXPONENTIAL = 0.000010;
+
 
   public static String generateOkResponse(double computationTime, double result) {
     String resultString;
@@ -17,7 +17,9 @@ public class Response {
     return String.format(Locale.ROOT, "OK;%.3f;%s", computationTime, resultString);
   }
 
+
   public static String generateErrorResponse(String errorDescription) {
     return String.format("ERR;%s", errorDescription);
   }
+
 }

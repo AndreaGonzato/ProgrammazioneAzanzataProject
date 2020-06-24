@@ -6,17 +6,19 @@ https://mathtricks.zohosites.com/Numerical-Expression.html
 This class models and calculate numerical expression
  */
 public class NumericalExpression {
-
   private final Node root; // binary tree representing the expression
+
 
   public NumericalExpression(String stringToProcess) {
     Parser parser = new Parser(stringToProcess);
     root = parser.parse(true);
   }
 
+
   public double calculate() {
     return calculateRecursively(root);
   }
+
 
   private double calculateRecursively(Node node) {
     if (node instanceof Operator) {
@@ -32,4 +34,5 @@ public class NumericalExpression {
     // the execution must not get here at run time
     throw new IllegalArgumentException("Unexpected Node: " + node + " during calculation");
   }
+
 }

@@ -6,19 +6,21 @@ import java.util.List;
 
 
 public class ServerData {
-
   private static List<Double> responseTimes = Collections.synchronizedList(new ArrayList<>());
+
 
   public static synchronized void addResponseTime(double time) {
     responseTimes.add(time);
   }
 
+
   public static synchronized int getResponsesNumber() {
     return responseTimes.size();
   }
 
+
   public static synchronized double getMaximumResponseTime() {
-    if (responseTimes.size() == 0){
+    if (responseTimes.size() == 0) {
       return Double.NaN;
     }
     double maximumResponseTime = 0;
@@ -30,6 +32,7 @@ public class ServerData {
     return maximumResponseTime;
   }
 
+
   public static synchronized double getAverageResponseTime() {
     double sum = 0;
     for (Double responseTime : responseTimes) {
@@ -37,6 +40,5 @@ public class ServerData {
     }
     return sum / responseTimes.size();
   }
-
 
 }

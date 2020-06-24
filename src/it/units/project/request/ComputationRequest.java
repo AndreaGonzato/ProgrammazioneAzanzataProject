@@ -33,6 +33,7 @@ public class ComputationRequest implements Request {
     this.request = request;
   }
 
+
   public String solve() {
     final long startTime = System.currentTimeMillis();
     try {
@@ -95,7 +96,6 @@ public class ComputationRequest implements Request {
     if (offset != request.length()) {
       throw new ProtocolException("Delete chars from index: " + offset + " to obtain a syntactic valid request");
     }
-
   }
 
 
@@ -191,11 +191,9 @@ public class ComputationRequest implements Request {
   private Set<List<Double>> getTuples() throws ProtocolException {
     if (valuesKind.equals(ValuesKind.GRID)) {
       // GRID
-
       if (variables.size() == 0) {
         return new HashSet<>(); // empty Set
       }
-
       /*
       create a List that contains the values Sets of all the variables:
       for example if:
@@ -226,7 +224,6 @@ public class ComputationRequest implements Request {
           throw new ProtocolException("The cardinality of values of the variables it is not the same for each variable");
         }
       }
-
       /*
       create a List that contains the values List of all the variables:
       for example if:
