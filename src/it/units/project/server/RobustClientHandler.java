@@ -30,15 +30,15 @@ public class RobustClientHandler extends Thread {
     try (socket) {
       BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
       BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-      System.out.println("Established a new connection with client: " + socket.getInetAddress().getHostAddress());
+      System.out.printf("[%1$tY-%1$tm-%1$td %1$tT] Established a new connection with client: %2$s%n", System.currentTimeMillis(), socket.getInetAddress().getHostAddress());
       while (true) {
         String command = br.readLine();
         if (command == null) {
-          System.err.println("Client "+socket.getInetAddress().getHostAddress()+" closed connection abruptly");
+          System.err.printf("[%1$tY-%1$tm-%1$td %1$tT] Client %2$s closed connection abruptly%n", System.currentTimeMillis(), socket.getInetAddress().getHostAddress());
           break;
         }
         if (command.equals(quitCommand)) {
-          System.out.println("Closing connection with client: " + socket.getInetAddress().getHostAddress());
+          System.out.printf("[%1$tY-%1$tm-%1$td %1$tT] Disconnection of client: %2$s%n", System.currentTimeMillis(), socket.getInetAddress().getHostAddress());
           break;
         }
         if (command.length() >= 5 && command.substring(0, 5).equals("STAT_")) {

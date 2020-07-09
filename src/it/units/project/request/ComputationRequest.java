@@ -7,15 +7,11 @@ import it.units.project.exception.ServiceException;
 import it.units.project.expression.Expression;
 import it.units.project.expression.Variable;
 import it.units.project.response.Response;
-import it.units.project.server.ServerData;
+import it.units.project.server.SynchronizedServerData;
 
 import java.net.ProtocolException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,7 +57,7 @@ public class ComputationRequest implements Request {
       }
 
       double processTime = ((double) System.currentTimeMillis() - startTime) / 1000;
-      ServerData.addResponseTime(processTime);
+      SynchronizedServerData.addResponseTime(processTime);
       return Response.generateOkResponse(processTime, result);
     } catch (ProtocolException | ServiceException e) {
       return Response.generateErrorResponse(String.format("(%s) %s", e.getClass().getSimpleName(), e.getMessage()));
@@ -274,5 +270,19 @@ public class ComputationRequest implements Request {
     return offset;
   }
 
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    ComputationRequest that = (ComputationRequest) o;
+    return Objects.equals(request, that.request);
+  }
+
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(request);
+  }
 
 }
